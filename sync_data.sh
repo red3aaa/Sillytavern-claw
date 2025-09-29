@@ -39,13 +39,13 @@ latest_backup = sorted(backups)[-1]
 print(f'最新备份文件：{latest_backup}')
 with requests.get(f'$FULL_WEBDAV_URL/{latest_backup}', auth=('$WEBDAV_USERNAME', '$WEBDAV_PASSWORD'), stream=True) as r:
     if r.status_code == 200:
-        with open(f'/home/node/app/{latest_backup}', 'wb') as f:
+        with open(f'/home/node/app/temp/{latest_backup}', 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
-        print(f'成功下载备份文件到 /home/node/app/{latest_backup}')
-        if os.path.exists(f'/home/node/app/{latest_backup}'):
+        print(f'成功下载备份文件到 /home/node/app/temp/{latest_backup}')
+        if os.path.exists(f'/home/node/app/temp/{latest_backup}'):
             # 解压备份文件
-            with tarfile.open(f'/home/node/app/{latest_backup}', 'r:gz') as tar:
+            with tarfile.open(f'/home/node/app/temp/{latest_backup}', 'r:gz') as tar:
                 tar.extractall('/home/node/app')
                 print(f'成功从 {latest_backup} 恢复备份')
         else:
@@ -79,10 +79,10 @@ sync_data() {
 
             # 备份整个data目录
             cd /home/node/app
-            tar -czf "/home/node/app/${backup_file}" --exclude='data/lost+found' data
+            tar -czf "/home/node/app/temp/${backup_file}" --exclude='data/lost+found' data
 
             # 上传新备份到WebDAV
-            curl -u "$WEBDAV_USERNAME:$WEBDAV_PASSWORD" -T "/home/node/app/${backup_file}" "$FULL_WEBDAV_URL/${backup_file}"
+            curl -u "$WEBDAV_USERNAME:$WEBDAV_PASSWORD" -T "/home/node/app/temp/${backup_file}" "$FULL_WEBDAV_URL/${backup_file}"
             if [ $? -eq 0 ]; then
                 echo "Successfully uploaded ${backup_file} to WebDAV"
             else
@@ -110,9 +110,9 @@ else:
     print('Only {} backups found, no need to clean.'.format(len(backups)))
 " 2>&1
 
-            rm -f "/home/node/app/${backup_file}"
+            rm -f "/home/node/app/temp/${backup_file}"
         else
-            echo "/home/node/app/data directory does not exist, waiting for next sync..."
+            echo "/home/node/app/temp/data directory does not exist, waiting for next sync..."
         fi
 
         SYNC_INTERVAL=${SYNC_INTERVAL:-86400}
