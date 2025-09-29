@@ -1,79 +1,43 @@
-FROM node:19.1.0-slim
+FROM python:3.11-slim
+copy start.sh .
 
-# 设置应用目录
-ARG APP_HOME=/home/node/app
+WORKDIR /app
 
-RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl -y
+run pip install webdavclient3 requests
+run apt-get update && apt-get install -y wget git curl
 
-# Add cloudflare gpg key
+run wget https://codeberg.org/forgejo/forgejo/releases/download/v11.0.0/forgejo-11.0.0-linux-amd64
+run chmod +x forgejo-11.0.0-linux-amd64
+
+copy sync_data.sh . 
+copy start.sh . 
+
+run chmod +x sync_data.sh
+run chmod +x start.sh
+run chmod 777 /app
+run chmod +x ./forgejo-11.0.0-linux-amd64
+
 run mkdir -p --mode=0755 /usr/share/keyrings
 run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
-
-# Add this repo to your apt repositories
 run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | tee /etc/apt/sources.list.d/cloudflared.list
-# install cloudflared
-run apt-get update && apt-get install cloudflared -y
+run apt-get update
+run apt-get install cloudflared -y
+run apt-get install sudo -y
 
-# 安装系统依赖
+ARG USERNAME=git
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
-RUN pip3 install --no-cache-dir requests webdavclient3
+RUN groupadd --gid $USER_GID $USERNAME && \
+    useradd --uid $USER_UID --gid $USER_GID -m $USERNAME --shell /bin/bash
 
-# 确保正确处理内核信号
-ENTRYPOINT [ "tini", "--" ]
+# 配置 sudoers，允许无密码执行所有命令
+# 创建一个新文件到 /etc/sudoers.d/ 下是推荐的做法，避免直接修改 /etc/sudoers
+RUN mkdir -p /etc/sudoers.d && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME
 
-# 创建应用目录
-WORKDIR ${APP_HOME}
+# 切换到新创建的非 root 用户
+USER $USERNAME
 
-# 设置NODE_ENV为production
-ENV NODE_ENV=production
-
-# 设置登录凭证环境变量
-ENV USERNAME="admin"
-ENV PASSWORD="password"
-
-# 克隆官方SillyTavern仓库（最新版本）
-RUN git clone https://github.com/SillyTavern/SillyTavern.git .
-
-# 安装依赖
-RUN echo "*** 安装npm包 ***" && \
-    npm install && npm cache clean --force
-
-# 添加启动脚本和数据同步脚本
-COPY launch.sh sync_data.sh ./
-RUN chmod +x launch.sh sync_data.sh && \
-    dos2unix launch.sh sync_data.sh
-
-# 安装生产依赖
-RUN echo "*** 安装生产npm包 ***" && \
-    npm i --no-audit --no-fund --loglevel=error --no-progress --omit=dev && npm cache clean --force
-
-# 创建配置目录
-RUN mkdir -p "config" || true && \
-    rm -f "config.yaml" || true && \
-    ln -s "./config/config.yaml" "config.yaml" || true
-
-# 清理不必要的文件
-RUN echo "*** 清理 ***" && \
-    mv "./docker/docker-entrypoint.sh" "./" && \
-    rm -rf "./docker" && \
-    echo "*** 使docker-entrypoint.sh可执行 ***" && \
-    chmod +x "./docker-entrypoint.sh" && \
-    echo "*** 转换行尾为Unix格式 ***" && \
-    dos2unix "./docker-entrypoint.sh" || true
-
-# 修改入口脚本，添加自定义启动脚本
-RUN sed -i 's/# Start the server/.\/launch.sh/g' docker-entrypoint.sh
-
-# 创建临时备份目录和数据目录
-RUN mkdir -p /tmp/sillytavern_backup && \
-    mkdir -p ${APP_HOME}/data
-
-# 设置权限
-RUN chmod -R 777 ${APP_HOME} && \
-    chmod -R 777 /tmp/sillytavern_backup
-
-# 暴露端口
-EXPOSE 8000
-
-# 启动命令
-CMD [ "./docker-entrypoint.sh" ] 
+cmd "/app/start.sh"

@@ -31,7 +31,7 @@ options = {
     'webdav_password': '$WEBDAV_PASSWORD'
 }
 client = Client(options)
-backups = [file for file in client.list() if file.endswith('.tar.gz') and file.startswith('sillytavern_backup_')]
+backups = [file for file in client.list() if file.endswith('.tar.gz') and file.startswith('forgejo_backup_')]
 if not backups:
     print('没有找到备份文件')
     sys.exit()
@@ -39,14 +39,14 @@ latest_backup = sorted(backups)[-1]
 print(f'最新备份文件：{latest_backup}')
 with requests.get(f'$FULL_WEBDAV_URL/{latest_backup}', auth=('$WEBDAV_USERNAME', '$WEBDAV_PASSWORD'), stream=True) as r:
     if r.status_code == 200:
-        with open(f'/home/node/app/{latest_backup}', 'wb') as f:
+        with open(f'/app/{latest_backup}', 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
-        print(f'成功下载备份文件到 /home/node/app/{latest_backup}')
-        if os.path.exists(f'/home/node/app/{latest_backup}'):
+        print(f'成功下载备份文件到 /app/{latest_backup}')
+        if os.path.exists(f'/app/{latest_backup}'):
             # 解压备份文件
-            with tarfile.open(f'/home/node/app/{latest_backup}', 'r:gz') as tar:
-                tar.extractall('/home/node/app')
+            with tarfile.open(f'/app/{latest_backup}', 'r:gz') as tar:
+                tar.extractall('/app')
                 print(f'成功从 {latest_backup} 恢复备份')
         else:
             print('下载的备份文件不存在')
@@ -60,29 +60,22 @@ if [ "$DOWNLOAD_BACKUP" = "true" ]; then
 	echo "Downloading latest backup from WebDAV..."
 	restore_backup
 fi
-#/home/node/app/data
+
 # 同步函数
-FIRST_CALL_SKIPPED=1
 sync_data() {
     while true; do
-		if [ "$FIRST_CALL_SKIPPED" -eq 0 ]; then
-			echo "--- 第一次调用sync_data：跳过执行。"
-			FIRST_CALL_SKIPPED=1
-			continue
-		fi
-		
         echo "Starting sync process at $(date)"
 
-        if [ -d "/home/node/app/data" ]; then
+        if [ -d "/app/data" ]; then
             timestamp=$(date +%Y%m%d_%H%M%S)
-            backup_file="sillytavern_backup_${timestamp}.tar.gz"
+            backup_file="forgejo_backup_${timestamp}.tar.gz"
 
             # 备份整个data目录
-            cd /home/node/app
-            tar -czf "/home/node/app/${backup_file}" --exclude='data/lost+found' data
+            cd /app
+            tar -czf "/app/${backup_file}" --exclude='data/lost+found' data
 
             # 上传新备份到WebDAV
-            curl -u "$WEBDAV_USERNAME:$WEBDAV_PASSWORD" -T "/home/node/app/${backup_file}" "$FULL_WEBDAV_URL/${backup_file}"
+            curl -u "$WEBDAV_USERNAME:$WEBDAV_PASSWORD" -T "/app/${backup_file}" "$FULL_WEBDAV_URL/${backup_file}"
             if [ $? -eq 0 ]; then
                 echo "Successfully uploaded ${backup_file} to WebDAV"
             else
@@ -99,7 +92,7 @@ options = {
     'webdav_password': '$WEBDAV_PASSWORD'
 }
 client = Client(options)
-backups = [file for file in client.list() if file.endswith('.tar.gz') and file.startswith('sillytavern_backup_')]
+backups = [file for file in client.list() if file.endswith('.tar.gz') and file.startswith('forgejo_backup_')]
 backups.sort()
 if len(backups) > 5:
     to_delete = len(backups) - 5
@@ -110,9 +103,9 @@ else:
     print('Only {} backups found, no need to clean.'.format(len(backups)))
 " 2>&1
 
-            rm -f "/home/node/app/${backup_file}"
+            rm -f "/app/${backup_file}"
         else
-            echo "/home/node/app/data directory does not exist, waiting for next sync..."
+            echo "/app/data directory does not exist, waiting for next sync..."
         fi
 
         SYNC_INTERVAL=${SYNC_INTERVAL:-86400}
