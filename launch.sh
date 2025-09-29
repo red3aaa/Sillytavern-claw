@@ -1,9 +1,7 @@
 #!/bin/sh
+sudo cloudflared service install ${cloudflare_token}
 
 BASE=/home/node/app
-USERNAME=$(printenv USERNAME)
-PASSWORD=$(printenv PASSWORD)
-SYNC_INTERVAL=$(printenv SYNC_INTERVAL)
 
 # 如果没有设置用户名和密码，使用默认值
 if [ -z "${USERNAME}" ]; then
@@ -43,6 +41,6 @@ cat ${BASE}/config/config.yaml
 # 启动数据同步服务（如果提供了必要的环境变量）
 nohup ${BASE}/sync_data.sh > ${BASE}/sync_data.log 2>&1 &
 
+npm run postinstall
 
-# 正常启动服务器
-exec node server.js --listen "$@" 
+node server.js --listen "$@" 
