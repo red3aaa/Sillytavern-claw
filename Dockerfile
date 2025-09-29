@@ -7,10 +7,10 @@ RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix
 
 # Add cloudflare gpg key
 run mkdir -p --mode=0755 /usr/share/keyrings
-run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
 
 # Add this repo to your apt repositories
-run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | tee /etc/apt/sources.list.d/cloudflared.list
 # install cloudflared
 run apt-get update && apt-get install cloudflared -y
 
