@@ -3,7 +3,7 @@ FROM node:19.1.0-slim
 # 设置应用目录
 ARG APP_HOME=/home/node/app
 
-RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl
+RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl -y
 
 # Add cloudflare gpg key
 run mkdir -p --mode=0755 /usr/share/keyrings
@@ -12,7 +12,7 @@ run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/sh
 # Add this repo to your apt repositories
 run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
 # install cloudflared
-run apt-get update && apt-get install cloudflared
+run apt-get update && apt-get install cloudflared -y
 
 # 安装系统依赖
 
