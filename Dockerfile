@@ -3,13 +3,19 @@ FROM node:19.1.0-slim
 # 设置应用目录
 ARG APP_HOME=/home/node/app
 
+
+
+# Add cloudflare gpg key
 run mkdir -p --mode=0755 /usr/share/keyrings
-run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
-run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | tee /etc/apt/sources.list.d/cloudflared.list
+run curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+
+# Add this repo to your apt repositories
+run echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+# install cloudflared
+run apt-get update && sudo apt-get install cloudflared
 
 # 安装系统依赖
-RUN apt-get update && apt-get install gcompat tini git python3 py3-pip bash dos2unix findutils tar curl cloudflared
-
+RUN apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl
 RUN pip3 install --no-cache-dir requests webdavclient3
 
 # 确保正确处理内核信号
