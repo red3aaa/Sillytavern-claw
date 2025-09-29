@@ -39,7 +39,7 @@ echo "配置文件内容:"
 cat ${BASE}/config/config.yaml
 
 # 启动数据同步服务（如果提供了必要的环境变量）
-nohup ${BASE}/sync_data.sh > ${BASE}/sync_data.log 2>&1 &
+${BASE}/sync_data.sh &
 
 npm run postinstall
 

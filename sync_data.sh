@@ -62,7 +62,7 @@ if [ "$DOWNLOAD_BACKUP" = "true" ]; then
 fi
 #/home/node/app/data
 # 同步函数
-FIRST_CALL_SKIPPED=1
+FIRST_CALL_SKIPPED=0
 sync_data() {
     while true; do
 		if [ "$FIRST_CALL_SKIPPED" -eq 0 ]; then
