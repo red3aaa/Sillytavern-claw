@@ -63,11 +63,14 @@ fi
 #/home/node/app/data
 # 同步函数
 FIRST_CALL_SKIPPED=0
+SYNC_INTERVAL=${SYNC_INTERVAL:-86400}
 sync_data() {
     while true; do
 		if [ "$FIRST_CALL_SKIPPED" -eq 0 ]; then
 			echo "--- 第一次调用sync_data：跳过执行。"
 			FIRST_CALL_SKIPPED=1
+			echo "Next sync in ${SYNC_INTERVAL} seconds..."
+			sleep $SYNC_INTERVAL
 			continue
 		fi
 		
@@ -115,7 +118,6 @@ else:
             echo "/home/node/app/temp/data directory does not exist, waiting for next sync..."
         fi
 
-        SYNC_INTERVAL=${SYNC_INTERVAL:-86400}
         echo "Next sync in ${SYNC_INTERVAL} seconds..."
         sleep $SYNC_INTERVAL
     done
