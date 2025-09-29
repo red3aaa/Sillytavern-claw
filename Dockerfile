@@ -66,12 +66,12 @@ RUN sed -i 's/# Start the server/.\/launch.sh/g' docker-entrypoint.sh
 
 # 创建临时备份目录和数据目录
 RUN mkdir -p /tmp/sillytavern_backup && \
-    mkdir -p ${APP_HOME}/data
+    mkdir -p ${APP_HOME}/data && \
 	mkdir -p ${APP_HOME}/temp
 
 # 设置权限
 RUN chmod -R 777 ${APP_HOME} && \
-    chmod -R 777 /tmp/sillytavern_backup
+    chmod -R 777 /tmp/sillytavern_backup && \
     chmod -R 777 ${APP_HOME}/temp
 
 # 暴露端口
