@@ -3,7 +3,7 @@ FROM node:19.1.0-slim
 # 设置应用目录
 ARG APP_HOME=/home/node/app
 
-RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl sudo -y
+RUN apt-get update && apt-get install tini git python3 python3-pip bash dos2unix findutils tar curl sudo nginx -y
 
 # Add cloudflare gpg key
 run mkdir -p --mode=0755 /usr/share/keyrings
@@ -39,7 +39,7 @@ RUN echo "*** 安装npm包 ***" && \
     npm install && npm cache clean --force
 
 # 添加启动脚本和数据同步脚本
-COPY launch.sh sync_data.sh ./
+COPY launch.sh sync_data.sh nginx.conf ./
 RUN chmod +x launch.sh sync_data.sh && \
     dos2unix launch.sh sync_data.sh
 
@@ -74,8 +74,12 @@ RUN chmod -R 777 ${APP_HOME} && \
     chmod -R 777 /tmp/sillytavern_backup && \
     chmod -R 777 ${APP_HOME}/temp
 
+run mkdir /web && chmod 777 /web
+copy index.html /web/index.html
+run chmod 777 /web/index.html
+
 # 暴露端口
-EXPOSE 8000
+EXPOSE 8000 7860
 
 # 启动命令
 CMD [ "./launch.sh" ] 

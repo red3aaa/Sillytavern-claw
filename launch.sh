@@ -41,6 +41,9 @@ cat ${BASE}/config/config.yaml
 # 启动数据同步服务（如果提供了必要的环境变量）
 ${BASE}/sync_data.sh &
 
+# 启动nginx
+sudo nginx -c ${BASE}/nginx.conf &
+
 npm run postinstall
 
 node server.js --listen "$@" 

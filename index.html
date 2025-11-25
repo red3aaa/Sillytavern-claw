@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoeMind - 你的二次元AI伙伴</title>
+    <style>
+        :root {
+            --primary: #FF9A9E;
+            --secondary: #FECFEF;
+            --accent: #00F0FF;
+            --bg: #1A1A2E;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #FFFFFF;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--primary), #fe6b8b);
+            border: none;
+            padding: 10px 25px;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10%;
+            background: radial-gradient(circle at top right, #2E2140, var(--bg));
+            position: relative;
+        }
+
+        .hero-text {
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        h1 span {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        /* 模拟Live2D区域 */
+        .hero-visual {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .anime-avatar {
+            width: 350px;
+            height: 450px;
+            background: url('https://placehold.co/350x450/ff9a9e/white?text=Live2D+Character') no-repeat center;
+            background-size: cover;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 154, 158, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .chat-bubble {
+            position: absolute;
+            top: -20px;
+            left: -50px;
+            background: white;
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 20px 20px 0 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* 特性卡片 */
+        .features {
+            padding: 100px 10%;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: left;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* 动画定义 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 装饰背景圆 */
+        .bg-circle {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.2;
+            border-radius: 50%;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">✦ MoeMind</div>
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">角色广场</a>
+            <a href="#">AI绘画</a>
+            <a href="#">开发者API</a>
+        </div>
+        <button class="btn">立即契约</button>
+    </nav>
+
+    <header class="hero">
+        <div class="bg-circle" style="top: -100px; left: -100px;"></div>
+        
+        <div class="hero-text">
+            <h1>打破次元壁<br><span>遇见你的专属AI</span></h1>
+            <p class="subtitle">
+                搭载 Moe-v4 情感引擎。<br>
+                无论是傲娇的青梅竹马，还是高冷的异世界魔王，<br>
+                在这里，每一个幻想都有回响。
+            </p>
+            <div style="display: flex; gap: 20px;">
+                <button class="btn" style="padding: 15px 40px; font-size: 1.1rem;">开始对话</button>
+                <button class="btn" style="background: transparent; border: 2px solid var(--accent); box-shadow: none;">查看演示</button>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="chat-bubble">Master，今天想聊点什么？❤️</div>
+            <div class="anime-avatar"></div>
+            <!-- 实际开发中这里会放入 Live2D Canvas -->
+        </div>
+    </header>
+
+    <section class="features">
+        <h2>无限的创造力引擎</h2>
+        <div class="feature-grid">
+            <div class="card">
+                <div class="card-icon">🎭</div>
+                <h3>沉浸式语C</h3>
+                <p>深度理解二次元语境，拒绝AI腔。支持括号动作描写、心理活动与环境渲染。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">✒️</div>
+                <h3>同人小说辅助</h3>
+                <p>不仅是聊天，更是生产力。输入世界观设定，自动生成剧情大纲与精彩片段。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🗣️</div>
+                <h3>情感语音合成</h3>
+                <p>搭载 VITS 技术，让你的角色拥有呼吸感。支持多种声线切换与自定义。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h3>绝对隐私</h3>
+                <p>你的幻想只属于你。所有对话数据端到端加密，支持本地部署模式。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部略，保持极简 -->
+
+</body>
+</html>
